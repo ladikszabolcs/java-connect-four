@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class View extends JFrame {
 
@@ -24,6 +25,7 @@ public class View extends JFrame {
         String[] settings = dbManager.loadSettings();
         numRows = Integer.parseInt(settings[0]);
         numCols = Integer.parseInt(settings[1]);
+        playerName = settings[2];
 
         // Set the title of the window
         setTitle("Connect Four");
@@ -105,18 +107,57 @@ public class View extends JFrame {
         updateGameBoard();
         add(gamePanel, BorderLayout.CENTER);
     }
-    //Method to open high-scores
+    // Method to open high-scores window
     private void openHighscoresWindow() {
-        // Create a new JFrame for the settings window
+        // Create a new JFrame for the high scores window
         JFrame highScoresFrame = new JFrame("High Scores");
 
-        // Set the size and close operation of the settings window
-        highScoresFrame.setSize(300, 200);
+        // Set the size and close operation of the window
+        highScoresFrame.setSize(300, 400);
         highScoresFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        // Set the layout
-        highScoresFrame.setLayout(new GridLayout(4, 2));
-        JLabel nameLabel = new JLabel("Player Name:");
-        highScoresFrame.add(nameLabel);
+
+        // Create a JPanel for the scores list
+        JPanel scoresPanel = new JPanel();
+        scoresPanel.setLayout(new GridLayout(0, 2)); // Dynamic row count, 2 columns for name and score
+
+        // Retrieve high scores from the database
+        List<String[]> highScores = dbManager.getHighScores();
+
+        // Add player names and scores to the panel
+        for (String[] entry : highScores) {
+            scoresPanel.add(new JLabel(entry[0])); // Player name
+            scoresPanel.add(new JLabel(entry[1])); // Player score
+        }
+
+        // Create a panel to hold the scores and the button
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(new JScrollPane(scoresPanel), BorderLayout.CENTER);
+
+        // Add a "Clear High Scores" button
+        JButton clearButton = new JButton("Clear High Scores");
+        clearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Confirm before clearing
+                int confirm = JOptionPane.showConfirmDialog(highScoresFrame,
+                        "Are you sure you want to clear the high scores?", "Confirm Clear",
+                        JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    dbManager.clearHighScores(); // Clear the high scores
+                    JOptionPane.showMessageDialog(highScoresFrame, "High scores cleared!");
+                    highScoresFrame.dispose(); // Close the window after clearing
+                }
+            }
+        });
+
+        // Add the clear button to the bottom of the panel
+        mainPanel.add(clearButton, BorderLayout.SOUTH);
+
+        // Add the main panel to the high scores frame
+        highScoresFrame.add(mainPanel);
+
+        // Set the window to be visible
         highScoresFrame.setVisible(true);
     }
     // Method to open the settings window (pop-up)

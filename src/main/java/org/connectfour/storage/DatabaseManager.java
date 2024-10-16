@@ -1,6 +1,8 @@
 package org.connectfour.storage;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseManager {
     private static final String DB_URL = "jdbc:sqlite:connectfour.db";
@@ -17,6 +19,9 @@ public class DatabaseManager {
                         "num_cols INTEGER, " +
                         "playername TEXT CHECK (LENGTH(player_name) <= 12))");
                 stmt.execute("CREATE TABLE IF NOT EXISTS game_state (id INTEGER PRIMARY KEY, board TEXT)");
+                stmt.execute("CREATE TABLE IF NOT EXISTS high_scores (" +
+                        "player_name TEXT PRIMARY KEY, " +
+                        "score INTEGER DEFAULT 0)");
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -102,5 +107,51 @@ public class DatabaseManager {
         }
 
         return boardState;
+    }
+    // Increment the score of the player after a win
+    public void incrementScore(String playerName) {
+        String sql = "INSERT INTO high_scores (player_name, score) " +
+                "VALUES (?, 1) " +
+                "ON CONFLICT(player_name) DO UPDATE SET score = score + 1";
+
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, playerName);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    // Retrieve all high scores sorted by score in descending order
+    public List<String[]> getHighScores() {
+        String sql = "SELECT player_name, score FROM high_scores ORDER BY score DESC";
+        List<String[]> highScores = new ArrayList<>();
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                String player = rs.getString("player_name");
+                String score = String.valueOf(rs.getInt("score"));
+                highScores.add(new String[] {player, score});
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return highScores;
+    }
+    // Method to clear the high scores table
+    public void clearHighScores() {
+        String sql = "DELETE FROM high_scores";
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

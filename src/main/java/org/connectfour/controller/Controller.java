@@ -31,6 +31,7 @@ public class Controller {
             // Check if the player has won
             if (model.checkWin(1)) {
                 JOptionPane.showMessageDialog(view, "Player wins!");
+                dbManager.incrementScore(view.getPlayerName()); // Increment the player's score
                 view.disableBoard();
                 return;
             }
