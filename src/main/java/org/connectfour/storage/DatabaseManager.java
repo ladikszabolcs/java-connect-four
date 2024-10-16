@@ -17,7 +17,7 @@ public class DatabaseManager {
                         "id INTEGER PRIMARY KEY, " +
                         "num_rows INTEGER, " +
                         "num_cols INTEGER, " +
-                        "playername TEXT CHECK (LENGTH(player_name) <= 12))");
+                        "playername TEXT CHECK (LENGTH(playername) <= 12))");
                 stmt.execute("CREATE TABLE IF NOT EXISTS game_state (id INTEGER PRIMARY KEY, board TEXT)");
                 stmt.execute("CREATE TABLE IF NOT EXISTS high_scores (" +
                         "player_name TEXT PRIMARY KEY, " +
@@ -100,6 +100,8 @@ public class DatabaseManager {
 
             if (rs.next()) {
                 boardState = rs.getString("board");
+            } else {
+                boardState = "";
             }
 
         } catch (SQLException e) {

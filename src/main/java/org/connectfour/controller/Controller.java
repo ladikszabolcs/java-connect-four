@@ -89,7 +89,12 @@ public class Controller {
     // Load the game state
     public void loadGameState() {
         String boardState = dbManager.loadGameState();
-        model.setBoard(deserializeBoard(boardState));
+        if (boardState == null || boardState.isEmpty()) {
+            // If no valid board state is found, initialize an empty board
+            model = new Model(view.getNumRows(), view.getNumCols());
+        } else {
+            model.setBoard(deserializeBoard(boardState));
+        }
         view.updateBoard(model.getBoard());
     }
 
