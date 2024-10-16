@@ -336,7 +336,11 @@ public class View extends JFrame {
     }
 
     // Helper method to sanitize and validate the player name
-    private boolean isValidName(String name) {
+    public boolean isValidName(String name) {
         return name.matches("^[a-zA-Z]{1,12}$"); // Only letters, no spaces, 1-12 characters
+    }
+    // Method to retrieve the board buttons (for testing or external use)
+    public JButton[][] getBoardButtons() {
+        return boardButtons;
     }
 }

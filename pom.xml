@@ -120,6 +120,28 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <!-- Exclude JDK and core classes from instrumentation -->
+                        <exclude>java/*</exclude>
+                        <exclude>javax/*</exclude>
+                        <exclude>sun/*</exclude>
+                        <exclude>com/sun/*</exclude>
+                        <exclude>oracle/*</exclude>
+                    </excludes>
+                    <rules>
+                        <rule>
+                            <element>BUNDLE</element>
+                            <limits>
+                                <limit>
+                                    <counter>LINE</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>0.80</minimum> <!-- 80% minimum line coverage -->
+                                </limit>
+                            </limits>
+                        </rule>
+                    </rules>
+                </configuration>
             </plugin>
 
             <!-- Checkstyle Plugin for code style checking -->
