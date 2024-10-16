@@ -98,6 +98,7 @@ public class View extends JFrame {
                 JOptionPane.showMessageDialog(settingsFrame, "Settings saved successfully!");
                 settingsFrame.dispose(); // Close the settings window
                 updateGameBoard(); // Update the game board with the new grid size
+                controller.resetGame(); //reset game because of settings change
             }
         });
 
