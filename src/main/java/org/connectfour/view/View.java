@@ -38,23 +38,43 @@ public class View extends JFrame {
 
         // Create the "Game" menu
         JMenu fileMenu = new JMenu("Game");
+        JMenu statsMenu = new JMenu("Stats");
 
         // Create "Settings", "New", and "Save" menu items
         JMenuItem settingsMenuItem = new JMenuItem("Settings");
         JMenuItem newMenuItem = new JMenuItem("New Game");
         JMenuItem saveMenuItem = new JMenuItem("Save Game");
+        JMenuItem exitMenuItem = new JMenuItem("Exit");
+        JMenuItem highScoreMenuItem = new JMenuItem("High Score");
 
         // Add menu items to the "Game" menu
         fileMenu.add(settingsMenuItem);
         fileMenu.add(newMenuItem);
         fileMenu.add(saveMenuItem);
+        fileMenu.add(exitMenuItem);
+        statsMenu.add(highScoreMenuItem);
 
         // Add "Game" menu to the menu bar
         menuBar.add(fileMenu);
+        menuBar.add(statsMenu);
 
         // Set the menu bar for the frame
         setJMenuBar(menuBar);
 
+        exitMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+        // Add action listener for Settings menu item
+        highScoreMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openHighscoresWindow();
+            }
+        });
         // Add action listener for Settings menu item
         settingsMenuItem.addActionListener(new ActionListener() {
             @Override
@@ -85,7 +105,20 @@ public class View extends JFrame {
         updateGameBoard();
         add(gamePanel, BorderLayout.CENTER);
     }
+    //Method to open high-scores
+    private void openHighscoresWindow() {
+        // Create a new JFrame for the settings window
+        JFrame highScoresFrame = new JFrame("High Scores");
 
+        // Set the size and close operation of the settings window
+        highScoresFrame.setSize(300, 200);
+        highScoresFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        // Set the layout
+        highScoresFrame.setLayout(new GridLayout(4, 2));
+        JLabel nameLabel = new JLabel("Player Name:");
+        highScoresFrame.add(nameLabel);
+        highScoresFrame.setVisible(true);
+    }
     // Method to open the settings window (pop-up)
     private void openSettingsWindow() {
         // Create a new JFrame for the settings window
