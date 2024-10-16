@@ -221,6 +221,7 @@ public class View extends JFrame {
                 settingsFrame.dispose(); // Close the settings window
                 updateGameBoard(); // Update the game board with the new grid size
                 controller.resetGame(); // Reset game because of settings change
+                controller.saveGameState(); //update board database with empty data avoiding conflicts
             }
         });
 
