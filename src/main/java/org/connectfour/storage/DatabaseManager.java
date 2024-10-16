@@ -11,8 +11,11 @@ public class DatabaseManager {
             if (conn != null) {
                 Statement stmt = conn.createStatement();
                 // Create settings table
-                stmt.execute("CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY, num_rows INTEGER, num_cols INTEGER)");
-                // Create game state table
+                stmt.execute("CREATE TABLE IF NOT EXISTS settings (" +
+                        "id INTEGER PRIMARY KEY, " +
+                        "num_rows INTEGER, " +
+                        "num_cols INTEGER, " +
+                        "playername TEXT CHECK (LENGTH(player_name) <= 12))");
                 stmt.execute("CREATE TABLE IF NOT EXISTS game_state (id INTEGER PRIMARY KEY, board TEXT)");
             }
         } catch (SQLException e) {
@@ -32,13 +35,14 @@ public class DatabaseManager {
     }
 
     // Save game settings
-    public void saveSettings(int numRows, int numCols) {
-        String sql = "INSERT OR REPLACE INTO settings (id, num_rows, num_cols) VALUES (1, ?, ?)";
+    public void saveSettings(int numRows, int numCols, String playerName) {
+        String sql = "INSERT OR REPLACE INTO settings (id, num_rows, num_cols, playername) VALUES (1, ?, ?, ?)";
 
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, numRows);
             pstmt.setInt(2, numCols);
+            pstmt.setString(3, playerName);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -46,17 +50,18 @@ public class DatabaseManager {
     }
 
     // Load game settings
-    public int[] loadSettings() {
-        String sql = "SELECT num_rows, num_cols FROM settings WHERE id = 1";
-        int[] settings = {6, 7}; // default values
+    public String[] loadSettings() {
+        String sql = "SELECT num_rows, num_cols, playername FROM settings WHERE id = 1";
+        String[] settings = {String.valueOf(6), String.valueOf(7), ""}; // default values
 
         try (Connection conn = connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             if (rs.next()) {
-                settings[0] = rs.getInt("num_rows");
-                settings[1] = rs.getInt("num_cols");
+                settings[0] = String.valueOf(rs.getInt("num_rows"));
+                settings[1] = String.valueOf(rs.getInt("num_cols"));
+                settings[2] = rs.getString("playername");
             }
 
         } catch (SQLException e) {

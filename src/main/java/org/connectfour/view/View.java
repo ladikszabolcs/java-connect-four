@@ -12,6 +12,7 @@ public class View extends JFrame {
 
     private int numRows; // Number of rows from settings
     private int numCols; // Number of columns from settings
+    private String playerName; // The player's name
     private JButton[][] boardButtons; // Button grid to represent the board
     private JPanel gamePanel; // Panel for the game grid
     private Controller controller; // Reference to the controller
@@ -20,9 +21,9 @@ public class View extends JFrame {
     public View() {
         // Initialize database manager and load settings
         dbManager = new DatabaseManager();
-        int[] settings = dbManager.loadSettings();
-        numRows = settings[0];
-        numCols = settings[1];
+        String[] settings = dbManager.loadSettings();
+        numRows = Integer.parseInt(settings[0]);
+        numCols = Integer.parseInt(settings[1]);
 
         // Set the title of the window
         setTitle("Connect Four");
@@ -95,13 +96,17 @@ public class View extends JFrame {
         settingsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // Set the layout
-        settingsFrame.setLayout(new GridLayout(3, 2));
+        settingsFrame.setLayout(new GridLayout(4, 2));
 
         // Add labels and spinners for the number of rows and columns
         JLabel rowsLabel = new JLabel("Rows (4-12):");
         JSpinner rowsSpinner = new JSpinner(new SpinnerNumberModel(numRows, 4, 12, 1)); // Spinner for rows with range 4-12
         JLabel colsLabel = new JLabel("Columns (4-12):");
         JSpinner colsSpinner = new JSpinner(new SpinnerNumberModel(numCols, 4, 12, 1)); // Spinner for columns with range 4-12
+
+        // Add label and input field for the player name
+        JLabel nameLabel = new JLabel("Player Name:");
+        JTextField nameField = new JTextField(playerName, 12); // Pre-fill with the current player name (max length 12)
 
         // Add Save button for applying changes
         JButton saveButton = new JButton("Save");
@@ -112,7 +117,15 @@ public class View extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 numRows = (int) rowsSpinner.getValue();
                 numCols = (int) colsSpinner.getValue();
-                dbManager.saveSettings(numRows, numCols); // Save settings to the database
+                // Validate and sanitize the player name
+                String enteredName = nameField.getText().trim().toLowerCase();
+                if (isValidName(enteredName)) {
+                    playerName = enteredName;
+                } else {
+                    JOptionPane.showMessageDialog(settingsFrame, "Invalid name. Use only letters, no spaces, max 12 characters.");
+                    return;
+                }
+                dbManager.saveSettings(numRows, numCols, playerName); // Save settings to the database
                 JOptionPane.showMessageDialog(settingsFrame, "Settings saved successfully!");
                 settingsFrame.dispose(); // Close the settings window
                 updateGameBoard(); // Update the game board with the new grid size
@@ -125,6 +138,8 @@ public class View extends JFrame {
         settingsFrame.add(rowsSpinner);
         settingsFrame.add(colsLabel);
         settingsFrame.add(colsSpinner);
+        settingsFrame.add(nameLabel);
+        settingsFrame.add(nameField);
         settingsFrame.add(new JLabel());  // Empty label for spacing
         settingsFrame.add(saveButton);
 
@@ -223,5 +238,14 @@ public class View extends JFrame {
 
     public int getNumCols() {
         return numCols;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    // Helper method to sanitize and validate the player name
+    private boolean isValidName(String name) {
+        return name.matches("^[a-zA-Z]{1,12}$"); // Only letters, no spaces, 1-12 characters
     }
 }
