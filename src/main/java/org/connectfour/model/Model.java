@@ -103,6 +103,11 @@ public class Model {
         return board;
     }
 
+    // Set the current board state (used when loading from database)
+    public void setBoard(int[][] board) {
+        this.board = board;
+    }
+
     public boolean isPlayerTurn() {
         return playerTurn;
     }

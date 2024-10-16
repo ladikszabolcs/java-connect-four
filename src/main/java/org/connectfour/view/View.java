@@ -1,6 +1,7 @@
 package org.connectfour.view;
 
 import org.connectfour.controller.Controller;
+import org.connectfour.storage.DatabaseManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,13 +10,20 @@ import java.awt.event.ActionListener;
 
 public class View extends JFrame {
 
-    private int numRows = 6; // Default number of rows
-    private int numCols = 7; // Default number of columns
+    private int numRows; // Number of rows from settings
+    private int numCols; // Number of columns from settings
     private JButton[][] boardButtons; // Button grid to represent the board
     private JPanel gamePanel; // Panel for the game grid
     private Controller controller; // Reference to the controller
+    private DatabaseManager dbManager; // Database manager for loading/saving settings
 
     public View() {
+        // Initialize database manager and load settings
+        dbManager = new DatabaseManager();
+        int[] settings = dbManager.loadSettings();
+        numRows = settings[0];
+        numCols = settings[1];
+
         // Set the title of the window
         setTitle("Connect Four");
 
@@ -33,7 +41,7 @@ public class View extends JFrame {
         // Create "Settings", "New", and "Save" menu items
         JMenuItem settingsMenuItem = new JMenuItem("Settings");
         JMenuItem newMenuItem = new JMenuItem("New Game");
-        JMenuItem saveMenuItem = new JMenuItem("Save");
+        JMenuItem saveMenuItem = new JMenuItem("Save Game");
 
         // Add menu items to the "Game" menu
         fileMenu.add(settingsMenuItem);
@@ -59,6 +67,15 @@ public class View extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 resetGame(); // Reset and update the game board when "New Game" is clicked
+            }
+        });
+
+        // Add action listener for Save Game menu item
+        saveMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.saveGameState(); // Save the current game state
+                JOptionPane.showMessageDialog(View.this, "Game state saved!");
             }
         });
 
@@ -95,10 +112,11 @@ public class View extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 numRows = (int) rowsSpinner.getValue();
                 numCols = (int) colsSpinner.getValue();
+                dbManager.saveSettings(numRows, numCols); // Save settings to the database
                 JOptionPane.showMessageDialog(settingsFrame, "Settings saved successfully!");
                 settingsFrame.dispose(); // Close the settings window
                 updateGameBoard(); // Update the game board with the new grid size
-                controller.resetGame(); //reset game because of settings change
+                controller.resetGame(); // Reset game because of settings change
             }
         });
 

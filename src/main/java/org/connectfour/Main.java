@@ -25,7 +25,7 @@ public class Main {
 
             // Create the Controller and link it to the Model and View
             Controller controller = new Controller(model, view);
-
+            controller.loadGameState();
             // Show the view
             view.setVisible(true);
         });
