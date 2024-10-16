@@ -122,9 +122,9 @@ public class DatabaseManager {
             System.out.println(e.getMessage());
         }
     }
-    // Retrieve all high scores sorted by score in descending order
-    public List<String[]> getHighScores() {
-        String sql = "SELECT player_name, score FROM high_scores ORDER BY score DESC";
+    // Retrieve all high scores, sorted by score (order can be ascending or descending)
+    public List<String[]> getHighScores(String sortOrder) {
+        String sql = "SELECT player_name, score FROM high_scores ORDER BY score " + sortOrder;
         List<String[]> highScores = new ArrayList<>();
 
         try (Connection conn = connect();
@@ -134,7 +134,7 @@ public class DatabaseManager {
             while (rs.next()) {
                 String player = rs.getString("player_name");
                 String score = String.valueOf(rs.getInt("score"));
-                highScores.add(new String[] {player, score});
+                highScores.add(new String[]{player, score});
             }
 
         } catch (SQLException e) {

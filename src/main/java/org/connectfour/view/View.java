@@ -111,27 +111,39 @@ public class View extends JFrame {
     private void openHighscoresWindow() {
         // Create a new JFrame for the high scores window
         JFrame highScoresFrame = new JFrame("High Scores");
-
-        // Set the size and close operation of the window
-        highScoresFrame.setSize(300, 400);
+        highScoresFrame.setSize(400, 300);
         highScoresFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // Create a JPanel for the scores list
-        JPanel scoresPanel = new JPanel();
-        scoresPanel.setLayout(new GridLayout(0, 2)); // Dynamic row count, 2 columns for name and score
-
-        // Retrieve high scores from the database
-        List<String[]> highScores = dbManager.getHighScores();
-
-        // Add player names and scores to the panel
-        for (String[] entry : highScores) {
-            scoresPanel.add(new JLabel(entry[0])); // Player name
-            scoresPanel.add(new JLabel(entry[1])); // Player score
-        }
-
-        // Create a panel to hold the scores and the button
+        // Panel to hold components
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(new JScrollPane(scoresPanel), BorderLayout.CENTER);
+
+        // Create a JTable for the high scores
+        String[] columnNames = {"Player Name", "Score"};
+        List<String[]> highScores = dbManager.getHighScores("DESC"); // Start with descending order
+        String[][] data = highScores.toArray(new String[0][]);
+        JTable table = new JTable(data, columnNames);
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        // Add the table to the main panel
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Add a toggle button for sorting order (ascending/descending)
+        JButton sortButton = new JButton("Sort Ascending");
+        sortButton.addActionListener(new ActionListener() {
+            private boolean ascending = false;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ascending = !ascending;
+                String sortOrder = ascending ? "ASC" : "DESC";
+                sortButton.setText(ascending ? "Sort Descending" : "Sort Ascending");
+
+                // Update the table with the new sorting order
+                List<String[]> sortedScores = dbManager.getHighScores(sortOrder);
+                String[][] updatedData = sortedScores.toArray(new String[0][]);
+                table.setModel(new javax.swing.table.DefaultTableModel(updatedData, columnNames));
+            }
+        });
 
         // Add a "Clear High Scores" button
         JButton clearButton = new JButton("Clear High Scores");
@@ -146,18 +158,23 @@ public class View extends JFrame {
                 if (confirm == JOptionPane.YES_OPTION) {
                     dbManager.clearHighScores(); // Clear the high scores
                     JOptionPane.showMessageDialog(highScoresFrame, "High scores cleared!");
-                    highScoresFrame.dispose(); // Close the window after clearing
+
+                    // Update the table to reflect the cleared high scores
+                    table.setModel(new javax.swing.table.DefaultTableModel(new String[0][2], columnNames));
                 }
             }
         });
 
-        // Add the clear button to the bottom of the panel
-        mainPanel.add(clearButton, BorderLayout.SOUTH);
+        // Panel for the buttons
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(sortButton);
+        buttonPanel.add(clearButton);
 
-        // Add the main panel to the high scores frame
+        // Add the button panel to the main panel
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Set up the main frame
         highScoresFrame.add(mainPanel);
-
-        // Set the window to be visible
         highScoresFrame.setVisible(true);
     }
     // Method to open the settings window (pop-up)
